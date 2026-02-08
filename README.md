@@ -5,22 +5,25 @@ Transform your Pelican Panel into a full-fledged Progressive Web App. Your users
 ## Screenshots
 
 ### Settings
-<img width="600" alt="image" src="https://github.com/user-attachments/assets/7f39e570-365f-4934-aff3-4a9ecb016a8f" />
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/7f39e570-365f-4934-aff3-4a9ecb016a8f" />
 
 ### User Profile Settings
-<img width="600" alt="image" src="https://github.com/user-attachments/assets/dce9a77a-d496-46df-b47a-f4f01acef09e" />
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/dce9a77a-d496-46df-b47a-f4f01acef09e" />
 
 ### Android Notification
-<img width="600" alt="Screenshot_20260207_193224" src="https://github.com/user-attachments/assets/76e9430c-82f8-4592-afae-a1e2f0f3426f" />
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/76e9430c-82f8-4592-afae-a1e2f0f3426f" />
 
 ### Android PWA with Notification
-<img width="600" alt="Screenshot_20260207_193203" src="https://github.com/user-attachments/assets/704d2ebc-5270-423f-8a7c-5b1c869148fd" />
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/704d2ebc-5270-423f-8a7c-5b1c869148fd" />
+
+### Apple Notification
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/05f0c479-7ed2-41c4-9cab-620ac4350810" />
 
 ### Apple in the PWA
-<img width="300" alt="IMG_4382" src="https://github.com/user-attachments/assets/6491f3ec-7ff8-474b-ae47-7cda42b0b65f" />
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/6491f3ec-7ff8-474b-ae47-7cda42b0b65f" />
 
 ### Apple PWA
-<img width="300" alt="IMG_4381" src="https://github.com/user-attachments/assets/ff9778af-3da0-48f1-8fbc-da5341a523be" />
+<img width="300" alt="image" src="https://github.com/user-attachments/assets/ff9778af-3da0-48f1-8fbc-da5341a523be" />
 
 ## What's Included
 
