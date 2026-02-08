@@ -3,32 +3,58 @@
 namespace PwaPlugin\Filament\Pages;
 
 use Filament\Facades\Filament;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Pages\Page;
-use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
 use PwaPlugin\Services\PwaSettingsRepository;
+use Filament\Actions\Action;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Actions as SchemaActions;
+use Filament\Support\Enums\IconSize;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ColorPicker;
 
-class PwaSettings extends Page implements HasForms
+class PwaSettings extends Page implements HasSchemas
 {
     use InteractsWithForms;
 
-    protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-device-phone-mobile';
-    protected static ?string $navigationLabel = 'PWA';
-    protected static \UnitEnum|string|null $navigationGroup = 'Advanced';
-    protected static ?int $navigationSort = 90;
+    protected string $view = 'filament.pages.settings';
 
-    protected string $view = 'pwa-plugin::pages.pwa-settings';
     protected static ?string $slug = 'pwa';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-device-phone-mobile';
+    
+    protected static \UnitEnum|string|null $navigationGroup = 'Advanced';
+    
+    protected static ?int $navigationSort = 90;
 
     public ?array $data = [];
 
+    public function hasLogo(): bool { return false; }
+    public function getLogo(): ?string { return null; }
+    
+    public function getTitle(): string 
+    { 
+        return trans('pwa-plugin::pwa-plugin.settings.title'); 
+    }
+
+    public static function getNavigationLabel(): string 
+    { 
+        return trans('pwa-plugin::pwa-plugin.navigation.label'); 
+    }
+
     public static function shouldRegisterNavigation(): bool
     {
-        $panel = Filament::getCurrentPanel();
+        return Filament::getCurrentPanel()?->getId() === 'admin';
+    }
 
-        return $panel?->getId() === 'admin';
+    protected function getFormStatePath(): ?string 
+    {
+        return 'data';
     }
 
     public function mount(PwaSettingsRepository $settings): void
@@ -54,119 +80,218 @@ class PwaSettings extends Page implements HasForms
             'default_notification_icon' => $this->defaultFromEnv('default_notification_icon', 'PWA_PLUGIN_NOTIFICATION_ICON', '/pelican.svg'),
             'default_notification_badge' => $this->defaultFromEnv('default_notification_badge', 'PWA_PLUGIN_NOTIFICATION_BADGE', '/pelican.svg'),
         ];
-
+        
         $values = $settings->allWithDefaults($defaults);
         $this->data = $values;
         $this->form->fill($values);
     }
 
-    public function form($form)
+    protected function getFormSchema(): array
     {
-        return $form
-            ->schema([
-                TextInput::make('theme_color')
-                    ->label('Theme color')
-                    ->helperText('Used by the manifest and browser UI.')
-                    ->required()
-                    ->maxLength(32),
-                TextInput::make('background_color')
-                    ->label('Background color')
-                    ->helperText('Splash screen background color.')
-                    ->required()
-                    ->maxLength(32),
-                TextInput::make('start_url')
-                    ->label('Start URL')
-                    ->helperText('Relative URL for the PWA start.')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('cache_name')
-                    ->label('Cache name')
-                    ->helperText('Used in the service worker cache.')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('cache_version')
-                    ->label('Cache version')
-                    ->numeric()
-                    ->required(),
-                TextInput::make('manifest_icon_192')
-                    ->label('Manifest icon (192x192)')
-                    ->helperText('Android requires PNG here for install icon.')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('manifest_icon_512')
-                    ->label('Manifest icon (512x512)')
-                    ->helperText('Android requires PNG here for install icon.')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('apple_touch_icon')
-                    ->label('Apple touch icon (default)')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('apple_touch_icon_152')
-                    ->label('Apple touch icon (152x152)')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('apple_touch_icon_167')
-                    ->label('Apple touch icon (167x167)')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('apple_touch_icon_180')
-                    ->label('Apple touch icon (180x180)')
-                    ->required()
-                    ->maxLength(255),
-                Toggle::make('push_enabled')
-                    ->label('Enable push notifications')
-                    ->helperText('Requires VAPID keys and the Web Push library.'),
-                Toggle::make('push_send_on_database_notifications')
-                    ->label('Send push for panel notifications')
-                    ->helperText('Sends push when a notification is stored in the database.'),
-                Toggle::make('push_send_on_mail_notifications')
-                    ->label('Send push for mail notifications')
-                    ->helperText('Sends push for notifications that only use the mail channel.'),
-                TextInput::make('vapid_subject')
-                    ->label('VAPID subject')
-                    ->helperText('Usually a mailto: or https: URL, e.g. mailto:admin@example.com')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('vapid_public_key')
-                    ->label('VAPID public key')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('vapid_private_key')
-                    ->label('VAPID private key')
-                    ->password()
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('default_notification_icon')
-                    ->label('Default notification icon')
-                    ->helperText('Default icon for push notifications.')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('default_notification_badge')
-                    ->label('Default notification badge')
-                    ->helperText('Default badge for push notifications.')
-                    ->required()
-                    ->maxLength(255),
-            ])
-            ->statePath('data');
+        return [
+            Tabs::make('Settings')
+                ->tabs([
+                    Tab::make('Manifest')
+                        ->label(trans('pwa-plugin::pwa-plugin.tabs.manifest'))
+                        ->icon('heroicon-o-device-phone-mobile')
+                        ->schema([
+                            Group::make()->columns(2)->schema([
+                                ColorPicker::make('theme_color')
+                                    ->label(trans('pwa-plugin::pwa-plugin.fields.theme_color.label'))
+                                    ->helperText(trans('pwa-plugin::pwa-plugin.fields.theme_color.helper'))
+                                    ->required(),
+                                
+                                ColorPicker::make('background_color')
+                                    ->label(trans('pwa-plugin::pwa-plugin.fields.background_color.label'))
+                                    ->helperText(trans('pwa-plugin::pwa-plugin.fields.background_color.helper'))
+                                    ->required(),
+                                
+                                TextInput::make('start_url')
+                                    ->label(trans('pwa-plugin::pwa-plugin.fields.start_url.label'))
+                                    ->helperText(trans('pwa-plugin::pwa-plugin.fields.start_url.helper'))
+                                    ->required()
+                                    ->maxLength(255),
+
+                                TextInput::make('cache_name')
+                                    ->label(trans('pwa-plugin::pwa-plugin.fields.cache_name.label'))
+                                    ->helperText(trans('pwa-plugin::pwa-plugin.fields.cache_name.helper'))
+                                    ->required()
+                                    ->maxLength(255),
+                            ]),
+                            TextInput::make('cache_version')
+                                ->label(trans('pwa-plugin::pwa-plugin.fields.cache_version.label'))
+                                ->numeric()
+                                ->required(),
+                            
+                            Group::make()->columns(2)->schema([
+                                TextInput::make('manifest_icon_192')
+                                    ->label(trans('pwa-plugin::pwa-plugin.fields.manifest_icon_192.label'))
+                                    ->helperText(trans('pwa-plugin::pwa-plugin.fields.manifest_icon_192.helper'))
+                                    ->required()
+                                    ->maxLength(255),
+
+                                TextInput::make('manifest_icon_512')
+                                    ->label(trans('pwa-plugin::pwa-plugin.fields.manifest_icon_512.label'))
+                                    ->helperText(trans('pwa-plugin::pwa-plugin.fields.manifest_icon_512.helper'))
+                                    ->required()
+                                    ->maxLength(255),
+                            ]),
+                            
+                            Group::make()->columns(2)->schema([
+                                TextInput::make('apple_touch_icon')
+                                    ->label(trans('pwa-plugin::pwa-plugin.fields.apple_touch_icon.label'))
+                                    ->required()
+                                    ->maxLength(255),
+
+                                TextInput::make('apple_touch_icon_152')
+                                    ->label(trans('pwa-plugin::pwa-plugin.fields.apple_touch_icon_152.label'))
+                                    ->required()
+                                    ->maxLength(255),
+
+                                TextInput::make('apple_touch_icon_167')
+                                    ->label(trans('pwa-plugin::pwa-plugin.fields.apple_touch_icon_167.label'))
+                                    ->required()
+                                    ->maxLength(255),
+
+                                TextInput::make('apple_touch_icon_180')
+                                    ->label(trans('pwa-plugin::pwa-plugin.fields.apple_touch_icon_180.label'))
+                                    ->required()
+                                    ->maxLength(255),
+                            ]),
+                        ]),
+
+                    Tab::make('Push Notifications')
+                        ->label(trans('pwa-plugin::pwa-plugin.tabs.push'))
+                        ->icon('heroicon-o-bell')
+                        ->schema([
+                            Toggle::make('push_enabled')
+                                ->label(trans('pwa-plugin::pwa-plugin.fields.push_enabled.label'))
+                                ->helperText(trans('pwa-plugin::pwa-plugin.fields.push_enabled.helper'))
+                                ->reactive(),
+                            
+                            Toggle::make('push_send_on_database_notifications')
+                                ->label(trans('pwa-plugin::pwa-plugin.fields.push_send_on_db.label'))
+                                ->helperText(trans('pwa-plugin::pwa-plugin.fields.push_send_on_db.helper')),
+                            
+                            Toggle::make('push_send_on_mail_notifications')
+                                ->label(trans('pwa-plugin::pwa-plugin.fields.push_send_on_mail.label'))
+                                ->helperText(trans('pwa-plugin::pwa-plugin.fields.push_send_on_mail.helper')),
+
+                            TextInput::make('vapid_subject')
+                                ->label(trans('pwa-plugin::pwa-plugin.fields.vapid_subject.label'))
+                                ->helperText(trans('pwa-plugin::pwa-plugin.fields.vapid_subject.helper'))
+                                ->required()
+                                ->maxLength(255)
+                                ->visible(fn ($get) => $get('push_enabled')),
+                            
+                            Group::make()->columns(2)->schema([
+                                TextInput::make('vapid_public_key')
+                                    ->label(trans('pwa-plugin::pwa-plugin.fields.vapid_public_key.label'))
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->visible(fn ($get) => $get('push_enabled')),
+                                
+                                TextInput::make('vapid_private_key')
+                                    ->label(trans('pwa-plugin::pwa-plugin.fields.vapid_private_key.label'))
+                                    ->password()
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->visible(fn ($get) => $get('push_enabled')),
+                            ]),
+
+                            Group::make()->columns(2)->schema([
+                                TextInput::make('default_notification_icon')
+                                    ->label(trans('pwa-plugin::pwa-plugin.fields.default_notification_icon.label'))
+                                    ->helperText(trans('pwa-plugin::pwa-plugin.fields.default_notification_icon.helper'))
+                                    ->required()
+                                    ->maxLength(255),
+
+                                TextInput::make('default_notification_badge')
+                                    ->label(trans('pwa-plugin::pwa-plugin.fields.default_notification_badge.label'))
+                                    ->helperText(trans('pwa-plugin::pwa-plugin.fields.default_notification_badge.helper'))
+                                    ->required()
+                                    ->maxLength(255),
+                            ]),
+                        ]),
+
+                    Tab::make('Actions')
+                        ->label(trans('pwa-plugin::pwa-plugin.tabs.actions'))
+                        ->icon('heroicon-o-command-line')
+                        ->schema([
+                            Group::make()
+                                ->columns(['default' => 1, 'lg' => 5]) 
+                                ->extraAttributes(['class' => 'gap-4'])
+                                ->schema([
+                                    SchemaActions::make([
+                                        Action::make('install')
+                                            ->label(trans('pwa-plugin::pwa-plugin.actions.install'))
+                                            ->icon('heroicon-o-arrow-down-tray')
+                                            ->color('success')
+                                            ->extraAttributes(['onclick' => 'window.pwaInstall?.(); return false;']),
+                                    ])->fullWidth(),
+
+                                    SchemaActions::make([
+                                        Action::make('notifications')
+                                            ->label(trans('pwa-plugin::pwa-plugin.actions.request_notifications'))
+                                            ->icon('heroicon-o-bell-snooze')
+                                            ->color('info')
+                                            ->extraAttributes(['onclick' => 'window.pwaRequestNotifications?.(); return false;']),
+                                    ])->fullWidth(),
+
+                                    SchemaActions::make([
+                                        Action::make('subscribe')
+                                            ->label(trans('pwa-plugin::pwa-plugin.actions.subscribe'))
+                                            ->icon('heroicon-o-check-circle')
+                                            ->color('primary')
+                                            ->extraAttributes(['onclick' => 'window.pwaRegisterPush?.(); return false;']),
+                                    ])->fullWidth(),
+
+                                    SchemaActions::make([
+                                        Action::make('unsubscribe')
+                                            ->label(trans('pwa-plugin::pwa-plugin.actions.unsubscribe'))
+                                            ->icon('heroicon-o-x-circle')
+                                            ->color('danger')
+                                            ->extraAttributes(['onclick' => 'window.pwaUnregisterPush?.(); return false;']),
+                                    ])->fullWidth(),
+
+                                    SchemaActions::make([
+                                        Action::make('test')
+                                            ->label(trans('pwa-plugin::pwa-plugin.actions.test_push'))
+                                            ->icon('heroicon-o-paper-airplane')
+                                            ->color('warning')
+                                            ->visible(fn () => app(\PwaPlugin\Services\PwaSettingsRepository::class)->get('push_enabled') ?? false)
+                                            ->extraAttributes(['onclick' => 'window.pwaSendTestPush?.(); return false;']),
+                                    ])->fullWidth(),
+                                ]),
+                        ]),
+                ])
+                ->persistTabInQueryString()
+        ];
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('save')
+                ->label(trans('pwa-plugin::pwa-plugin.actions.save'))
+                ->iconButton()->iconSize(IconSize::ExtraLarge)
+                ->icon('tabler-device-floppy')
+                ->action('save')
+                ->authorize(fn () => user()?->can('update settings'))
+                ->keyBindings(['mod+s']),
+        ];
     }
 
     public function save(PwaSettingsRepository $settings): void
     {
         $state = $this->form->getState();
         $settings->setMany($state);
-
-        session()->flash('status', 'PWA settings saved.');
+        Notification::make()->title(trans('pwa-plugin::pwa-plugin.notifications.saved'))->success()->send();
     }
 
     private function defaultFromEnv(string $key, string $envKey, string $fallback): string
     {
         $value = (string) config('pwa.' . $key, $fallback);
-
-        if ($value === '') {
-            $value = (string) env($envKey, $fallback);
-        }
-
-        return $value;
+        return $value ?: (string) env($envKey, $fallback);
     }
 }

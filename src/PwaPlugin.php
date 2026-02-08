@@ -11,11 +11,13 @@ use Illuminate\Support\Facades\View;
 use App\Enums\TabPosition;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\View as SchemaView;
 use PwaPlugin\Filament\Pages\PwaSettings;
 use PwaPlugin\Http\Controllers\PwaController;
 use PwaPlugin\Listeners\SendPwaPushOnDatabaseNotification;
 use Illuminate\Notifications\Events\NotificationSent;
+use Filament\Actions\Action;
+use Filament\Schemas\Components\Actions as SchemaActions;
+use Filament\Schemas\Components\Group;
 
 class PwaPlugin implements PluginContract
 {
@@ -31,17 +33,6 @@ class PwaPlugin implements PluginContract
         View::addNamespace('pwa-plugin', __DIR__ . '/../resources/views');
 
         $this->registerHeadHook($panel);
-
-        $hooks = [
-            'panels::profile.tabs.customization.after',
-            'panels::profile.tab.customization.after',
-            'panels::profile.customization.after',
-            'panels::profile.after',
-        ];
-
-        foreach ($hooks as $hook) {
-            $panel->renderHook($hook, fn () => view('pwa-plugin::pwa-quick-actions'));
-        }
 
         $panel->pages([
             PwaSettings::class,
@@ -115,11 +106,57 @@ class PwaPlugin implements PluginContract
         \App\Filament\Pages\Auth\EditProfile::registerCustomTabs(
             TabPosition::After,
             Tab::make('pwa')
-                ->label('PWA')
+                ->label(trans('pwa-plugin::pwa-plugin.profile.tab_label'))
+                ->icon('heroicon-o-device-phone-mobile')
                 ->schema([
-                    Section::make('PWA')
+                    Section::make(trans('pwa-plugin::pwa-plugin.profile.section_heading'))
+                        ->description(trans('pwa-plugin::pwa-plugin.profile.section_description'))
                         ->schema([
-                            SchemaView::make('pwa-plugin::pwa-quick-actions'),
+                            Group::make()
+                                ->columns(['default' => 1, 'lg' => 5]) 
+                                ->extraAttributes(['class' => 'gap-4'])
+                                ->schema([
+                                    SchemaActions::make([
+                                        Action::make('install')
+                                            ->label(trans('pwa-plugin::pwa-plugin.actions.install'))
+                                            ->icon('heroicon-o-arrow-down-tray')
+                                            ->color('success')
+                                            ->extraAttributes(['onclick' => 'window.pwaInstall?.(); return false;']),
+                                    ])->fullWidth(),
+
+                                    SchemaActions::make([
+                                        Action::make('notifications')
+                                            ->label(trans('pwa-plugin::pwa-plugin.actions.request_notifications'))
+                                            ->icon('heroicon-o-bell-snooze')
+                                            ->color('info')
+                                            ->extraAttributes(['onclick' => 'window.pwaRequestNotifications?.(); return false;']),
+                                    ])->fullWidth(),
+
+                                    SchemaActions::make([
+                                        Action::make('subscribe')
+                                            ->label(trans('pwa-plugin::pwa-plugin.actions.subscribe'))
+                                            ->icon('heroicon-o-check-circle')
+                                            ->color('primary')
+                                            ->extraAttributes(['onclick' => 'window.pwaRegisterPush?.(); return false;']),
+                                    ])->fullWidth(),
+
+                                    SchemaActions::make([
+                                        Action::make('unsubscribe')
+                                            ->label(trans('pwa-plugin::pwa-plugin.actions.unsubscribe'))
+                                            ->icon('heroicon-o-x-circle')
+                                            ->color('danger')
+                                            ->extraAttributes(['onclick' => 'window.pwaUnregisterPush?.(); return false;']),
+                                    ])->fullWidth(),
+
+                                    SchemaActions::make([
+                                        Action::make('test')
+                                            ->label(trans('pwa-plugin::pwa-plugin.actions.test_push'))
+                                            ->icon('heroicon-o-paper-airplane')
+                                            ->color('warning')
+                                            ->visible(fn () => app(\PwaPlugin\Services\PwaSettingsRepository::class)->get('push_enabled') ?? false)
+                                            ->extraAttributes(['onclick' => 'window.pwaSendTestPush?.(); return false;']),
+                                    ])->fullWidth(),
+                                ]),
                         ]),
                 ])
         );
