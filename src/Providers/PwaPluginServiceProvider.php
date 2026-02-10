@@ -2,8 +2,8 @@
 
 namespace PwaPlugin\Providers;
 
-use Illuminate\Support\Facades\Event;
 use Illuminate\Notifications\Events\NotificationSent;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use PwaPlugin\Listeners\SendPwaPushOnDatabaseNotification;
 

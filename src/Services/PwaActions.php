@@ -7,7 +7,6 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Actions as SchemaActions;
 use Filament\Schemas\Components\Group;
 use Illuminate\Support\Str;
-use PwaPlugin\Services\PwaSettingsRepository;
 
 class PwaActions
 {
