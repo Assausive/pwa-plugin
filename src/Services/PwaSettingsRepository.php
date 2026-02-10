@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace PwaPlugin\Services;
 
@@ -110,4 +110,3 @@ class PwaSettingsRepository
         return $settings;
     }
 }
-

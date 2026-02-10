@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace PwaPlugin\Http\Controllers;
 
@@ -194,4 +194,3 @@ class PwaPushController extends Controller
         return asset(ltrim($value, '/'));
     }
 }
-

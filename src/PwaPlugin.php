@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace PwaPlugin;
 
@@ -251,5 +251,3 @@ HTML;
         return asset(ltrim($value, '/'));
     }
 }
-
-

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace PwaPlugin\Filament\Pages;
 
@@ -296,4 +296,3 @@ class PwaSettings extends Page implements HasSchemas
         // No-op: uploads removed.
     }
 }
-

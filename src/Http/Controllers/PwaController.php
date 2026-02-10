@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace PwaPlugin\Http\Controllers;
 
@@ -283,5 +283,3 @@ JS;
         return array_values(array_unique($urls));
     }
 }
-
-

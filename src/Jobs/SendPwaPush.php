@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace PwaPlugin\Jobs;
 
@@ -56,4 +56,3 @@ class SendPwaPush implements ShouldQueue
         $push->sendToSubscription($subscription, $this->payload, $vapid);
     }
 }
-

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace PwaPlugin\Services;
 
@@ -96,4 +96,3 @@ class PwaActions
             ]);
     }
 }
-

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace PwaPlugin\Listeners;
 
@@ -186,4 +186,3 @@ class SendPwaPushOnDatabaseNotification
     }
 
 }
-

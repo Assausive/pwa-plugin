@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 return [
     'navigation' => [
@@ -139,6 +139,3 @@ return [
         ],
     ],
 ];
-
-
-
