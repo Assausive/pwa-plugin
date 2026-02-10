@@ -17,8 +17,3 @@ parameters:
         - '#Parameter .* has invalid type (Illuminate|Filament)\\#'
         - '#Instantiated class (Illuminate|Filament).* not found#'
         - '#Class (Illuminate|Filament).* not found#'
-    
-    # Check our own code quality
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
-
