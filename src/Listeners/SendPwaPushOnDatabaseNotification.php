@@ -14,6 +14,7 @@ use PwaPlugin\Services\PwaSettingsRepository;
 class SendPwaPushOnDatabaseNotification
 {
     private PwaSettingsRepository $settings;
+
     private PwaPushService $push;
 
     public function __construct(PwaSettingsRepository $settings, PwaPushService $push)
