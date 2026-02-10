@@ -5,15 +5,15 @@ parameters:
     excludePaths:
         - vendor
     
+    # Bootstrap file with Laravel/Filament stubs
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+    
     # Don't report unmatched ignored errors
     reportUnmatchedIgnoredErrors: false
     
-    # Plugin-friendly settings - ignore missing Laravel/Filament classes
-    # These will be available when the plugin is loaded in a Laravel app
+    # Ignore remaining errors for framework classes
     ignoreErrors:
-        # Ignore all "unknown class" errors for Laravel/Filament
-        - '#(extends|implements|uses) unknown (class|interface|trait)#'
-        
         # Ignore undefined methods/properties on models
         - '#Call to an undefined (static )?method#'
         - '#Access to an undefined property#'
@@ -28,3 +28,4 @@ parameters:
         - '#Instantiated class .* not found#'
         - '#Class .* not found#'
         - '#Cannot call method .* on class-string\|object#'
+
